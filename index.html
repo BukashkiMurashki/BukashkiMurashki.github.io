@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Нажми на кнопку</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #222;
+    color: #fff;
+    font-family: sans-serif;
+  }
+
+  #btn {
+    font-size: 60px;
+    padding: 50px 100px;
+    border: none;
+    border-radius: 20px;
+    background: #ff5722;
+    color: #fff;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  #btn:hover {
+    background: #e64a19;
+  }
+</style>
+</head>
+<body>
+
+<button id="btn">НАЖМИ</button>
+<audio id="sound" src="sound.mp3"></audio>
+
+<script>
+const btn = document.getElementById("btn");
+const audio = document.getElementById("sound");
+let ws;
+
+btn.onclick = () => {
+  // разрешаем браузеру воспроизведение звука
+  audio.play().then(() => audio.pause()).catch(err => console.log(err));
+
+  btn.disabled = true;
+  btn.innerText = "Ожидание команды...";
+
+  // WebSocket соединение
+  ws = new WebSocket(`ws://${location.host}`);
+
+  ws.onopen = () => console.log("WebSocket подключен");
+  ws.onclose = () => console.log("WebSocket закрыт");
+  ws.onerror = (e) => console.log("Ошибка WS:", e);
+
+  ws.onmessage = (e) => {
+    if (e.data === "play") {
+      audio.currentTime = 0;
+      audio.play().catch(err => console.log("Ошибка воспроизведения:", err));
+    }
+  };
+};
+</script>
+
+</body>
+</html>
